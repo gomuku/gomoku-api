@@ -1,0 +1,15 @@
+language: php
+
+php:
+  - 7.0
+
+sudo: false
+
+before_install:
+  - composer self-update
+
+install:
+  - cd user & travis_retry composer install --no-interaction --prefer-source
+
+script:
+  - cd user & ./vendor/bin/phpunit
