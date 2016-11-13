@@ -36,34 +36,11 @@ class UserController extends AbstractController
         $body = (object) $req->getParsedBody();
 
         // get user
-        $tbUser = $this->get('db')->table('users');
-        $rUser  = $tbUser->where('username', '=', $body->username)
-                ->where('password', '=', md5($body->password))
-                ->first();
-
-        // get token
-        if (!empty($rUser)) {
-            $tbToken = $this->get('db')->table('tokens');
-            $rToken  = $tbToken->where('user_id', '=', $rUser->id)
-                    ->where('appid', '=', null)
-                    ->where('expired', '>=', time())
-                    ->first();
-
-            // create new tokens after checking ussername and password
-            if (!$rToken) {
-                $setting  = (object) $this->get('settings')['token'];
-                $newToken = [
-                    'user_id' => $rUser->id,
-                    'token'   => $this->_genToken($rUser->id),
-                    'expired' => strtotime($setting->timeout)
-                ];
-
-                // tracking status save on failed
-                if ($tbToken->insert($newToken)) {
-                    $rToken = (object) $newToken;
-                }
-            }
-        } else {
+        $user = $this->table('users')
+            ->where('username', '=', $body->username)
+            ->where('password', '=', md5($body->password))
+            ->first();
+        if (!$user) {
             return $res->withStatus(403)->withJson([
                 'error' => [
                     'code'    => 403,
@@ -71,13 +48,35 @@ class UserController extends AbstractController
                 ]
             ]);
         }
+        
+        // get token
+        $tbToken = $this->table('tokens');
+        $token  = $tbToken->where('user_id', '=', $user->id)
+                ->where('appid', '=', null)
+                ->where('expired', '>=', time())
+                ->first();
+
+        // create new tokens after checking ussername and password
+        if (!$token) {
+            $setting  = (object) $this->get('settings')['token'];
+            $newToken = [
+                'user_id' => $user->id,
+                'token'   => $this->_genToken($user->id),
+                'expired' => strtotime($setting->timeout)
+            ];
+
+            // tracking status save on failed
+            if ($tbToken->insert($newToken)) {
+                $token = (object) $newToken;
+            }
+        }
 
         // reponse result
         return $res->withJson([
-            'id'       => $rUser->id,
-            'username' => $rUser->username,
-            'token'    => $rToken->token,
-            'expired'  => $rToken->expired
+            'id'       => $user->id,
+            'username' => $user->username,
+            'token'    => $token->token,
+            'expired'  => $token->expired
         ]);
     }
 
