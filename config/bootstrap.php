@@ -22,7 +22,6 @@ $container['db'] = function ($c) {
     return $capsule;
 };
 
-
 // Routes
 if (!isset($withMiddleware) || $withMiddleware) {
     require CONFIG . '/middleware.php';
