@@ -9,7 +9,7 @@ before_install:
   - composer self-update
 
 install:
-  - cd user ; travis_retry composer install --no-interaction --prefer-source
+  - travis_retry composer install --no-interaction --prefer-source
 
 script:
-  - cd user ; ./vendor/bin/phpunit
+  - ./vendor/bin/phpunit
