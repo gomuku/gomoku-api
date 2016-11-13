@@ -24,7 +24,6 @@ abstract class AbstractController
     public function __construct(ContainerInterface $ci)
     {
         $this->ci = $ci;
-
         $this->init();
     }
 
@@ -33,8 +32,9 @@ abstract class AbstractController
      * 
      * @return [type] [description]
      */
-    public function init(){
-
+    public function init()
+    {
+        
     }
 
     /**
@@ -43,10 +43,10 @@ abstract class AbstractController
      * @param  [type] $name [description]
      * @return [type]       [description]
      */
-    public function get($name){
+    public function get($name)
+    {
         return $this->ci->get($name);
     }
-
 
     /**
      * gen string token using key
@@ -54,8 +54,10 @@ abstract class AbstractController
      * @param  string $key
      * @return string token string using md5
      */
-    protected function _genToken($key = ''){
-        $setting = (object)$this->get('settings')['token'];
+    protected function _genToken($key = '')
+    {
+        $setting = (object) $this->get('settings')['token'];
         return md5($key . $setting->salt . time());
     }
+
 }

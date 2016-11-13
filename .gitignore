@@ -2,3 +2,4 @@
 /logs/*
 /tmp
 !/logs/README.md
+/nbproject

@@ -10,7 +10,6 @@ use Slim\Http\Response;
  */
 class UserController extends AbstractController
 {
-
     /**
      * Index action
      * 
@@ -24,52 +23,50 @@ class UserController extends AbstractController
         return $res->withJson('Hello World!');
     }
 
-
     /**
      * Get token action
      * 
      * @param \Slim\Http\Request $req
      * @param \Slim\Http\Response $res
-     * @param array $args
      * @return \Slim\Http\Response
      */
-    public function getToken(Request $req, Response $res, array $args)
+    public function getToken(Request $req, Response $res)
     {
         // validate here
-        $body = (object)$req->getParsedBody();
+        $body = (object) $req->getParsedBody();
 
         // get user
         $tbUser = $this->get('db')->table('users');
-        $rUser = $tbUser->where('username','=', $body->username)
-            ->where('password', '=', md5($body->password))
-            ->first();
-        
-        // get token
-        if(!empty($rUser)){
-            $tbToken = $this->get('db')->table('tokens');
-            $rToken = $tbToken->where('user_id','=', $rUser->id)
-                ->where('appid', '=', null)
-                ->where('expired', '>=', time())
+        $rUser  = $tbUser->where('username', '=', $body->username)
+                ->where('password', '=', md5($body->password))
                 ->first();
 
+        // get token
+        if (!empty($rUser)) {
+            $tbToken = $this->get('db')->table('tokens');
+            $rToken  = $tbToken->where('user_id', '=', $rUser->id)
+                    ->where('appid', '=', null)
+                    ->where('expired', '>=', time())
+                    ->first();
+
             // create new tokens after checking ussername and password
-            if(empty($rToken)){
-                $setting = (object)$this->get('settings')['token'];
-                $rToken = [
+            if (!$rToken) {
+                $setting  = (object) $this->get('settings')['token'];
+                $newToken = [
                     'user_id' => $rUser->id,
-                    'token' => $this->_genToken($rUser->id),
+                    'token'   => $this->_genToken($rUser->id),
                     'expired' => strtotime($setting->timeout)
                 ];
 
                 // tracking status save on failed
-                if($tbToken->insert($rToken)){
-                    $rToken = (object)$rToken;
+                if ($tbToken->insert($newToken)) {
+                    $rToken = (object) $newToken;
                 }
             }
         } else {
-            return $res->withStatus(401)->withJson([
+            return $res->withStatus(403)->withJson([
                 'error' => [
-                    'code' => 401,
+                    'code'    => 403,
                     'message' => 'Wrong username or password. access denied.'
                 ]
             ]);
@@ -77,10 +74,11 @@ class UserController extends AbstractController
 
         // reponse result
         return $res->withJson([
-            'id' => $rUser->id,
+            'id'       => $rUser->id,
             'username' => $rUser->username,
-            'token' => $rToken->token,
-            'expired' => $rToken->expired
+            'token'    => $rToken->token,
+            'expired'  => $rToken->expired
         ]);
     }
+
 }

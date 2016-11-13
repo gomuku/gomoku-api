@@ -11,7 +11,6 @@ if (!defined('DS')) {
  * a directory layout other than the way it is distributed.
  * When using custom settings be sure to use the DS and do not add a trailing DS.
  */
-
 /**
  * The full path to the directory which holds "src", WITHOUT a trailing DS.
  */
@@ -47,6 +46,12 @@ define('TESTS', ROOT . DS . 'tests' . DS);
  * Path to the temporary files directory.
  */
 define('TMP', ROOT . DS . 'tmp' . DS);
+
+
+/**
+ * Path to the temporary files directory.
+ */
+define('STORAGE', ROOT . DS . 'storage' . DS);
 
 /**
  * Path to the logs directory.

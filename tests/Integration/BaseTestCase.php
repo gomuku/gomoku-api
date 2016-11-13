@@ -15,6 +15,7 @@ use Slim\Http\Environment;
  */
 class BaseTestCase extends \PHPUnit_Framework_TestCase
 {
+
     /**
      * [$app description]
      * @var [type]
@@ -37,9 +38,10 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
     /**
      * [setUp description]
      */
-    public function setUp(){
+    public function setUp()
+    {
         // Use the application settings
-        $settings = require CONFIG . '/settings.php';
+        $settings                   = require CONFIG . '/settings.php';
         $settings['settings']['db'] = $settings['settings']['db_test'];
 
         $this->capsule = new \Illuminate\Database\Capsule\Manager;
@@ -48,12 +50,11 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
         $this->capsule->bootEloquent();
 
         // Instantiate the application
-        $this->app = $app = new App($settings);
+        $this->app = $app       = new App($settings);
 
         // Set up dependencies
         $withMiddleware = $this->withMiddleware;
         require CONFIG . '/bootstrap.php';
-
     }
 
     /**
@@ -67,12 +68,10 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
     public function request($requestMethod, $requestUri, $requestData = null)
     {
         // Create a mock environment for testing with
-        $environment = Environment::mock(
-            [
-                'REQUEST_METHOD' => $requestMethod,
-                'REQUEST_URI' => $requestUri
-            ]
-        );
+        $environment = Environment::mock([
+            'REQUEST_METHOD' => $requestMethod,
+            'REQUEST_URI'    => $requestUri
+        ]);
 
         // Set up a request object based on the environment
         $request = Request::createFromEnvironment($environment);
@@ -92,15 +91,15 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
         return $response;
     }
 
-
     /**
      * check isValidMd5
      * 
      * @param  string  $md5 [description]
      * @return boolean      [description]
      */
-    protected function _isValidMd5($md5 =''){
-        return (boolean)preg_match('/^[a-f0-9]{32}$/', $md5);
+    protected function _isValidMd5($md5 = '')
+    {
+        return (boolean) preg_match('/^[a-f0-9]{32}$/', $md5);
     }
 
     /**
@@ -108,7 +107,9 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
      * 
      * @return [type] [description]
      */
-    public function assertIsMd5String($md5 = '', $message = ''){
+    public function assertIsMd5String($md5 = '', $message = '')
+    {
         $this->assertEquals(true, $this->_isValidMd5($md5), $message);
     }
+
 }

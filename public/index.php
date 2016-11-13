@@ -14,7 +14,7 @@ require __DIR__ . '/../config/paths.php';
 
 // Instantiate the app
 $settings = require CONFIG . '/settings.php';
-$app = new \Slim\App($settings);
+$app      = new \Slim\App($settings);
 
 // load bootstrap
 require CONFIG . '/bootstrap.php';
