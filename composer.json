@@ -21,7 +21,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Api\\Controller\\": "src/controllers/"
+            "Api\\Controller\\": "src/controllers/",
+            "Api\\Model\\": "src/models/"
         }
     },
     "autoload-dev": {
