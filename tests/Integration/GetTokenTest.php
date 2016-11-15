@@ -7,22 +7,17 @@ use Tests\Db\Token as DbToken;
 
 class GetTokenTest extends BaseTestCase
 {
+    
+    /**
+     * 
+     */
     public function setUp()
     {
         parent::setUp();
-        DbUser::create();
-        DbToken::create();
-    }
-
-    /**
-     * [tearDown description]
-     * @return [type] [description]
-     */
-    public function tearDown()
-    {
-        parent::tearDown();
-        DbUser::drop();
-        DbToken::drop();
+        $this->dbUser  = new DbUser();
+        $this->dbToken = new DbToken();
+        $this->dbUser->create();
+        $this->dbToken->create();
     }
 
     /**
@@ -31,11 +26,11 @@ class GetTokenTest extends BaseTestCase
     public function testGetTokenOnFirstTimeLoginSuccess()
     {
         // GIVEN
-        DbUser::insert([
+        $this->dbUser->insert([
             [
                 'username' => 'vkiet',
                 'password' => md5('123456'),
-                'email'    => 'vkiet@tester@yahoo-corp.jp',
+                'email'    => 'tester@yahoo-corp.jp',
                 'fullname' => 'Vo Anh Kiet'
             ]
         ]);
@@ -72,6 +67,17 @@ class GetTokenTest extends BaseTestCase
         $resData = json_decode($response->getBody());
         $this->assertEquals(403, $resData->error->code);
         $this->assertEquals('Wrong username or password. access denied.', $resData->error->message);
+    }
+
+    /**
+     * [tearDown description]
+     * @return [type] [description]
+     */
+    public function tearDown()
+    {
+        parent::tearDown();
+        $this->dbUser->drop();
+        $this->dbToken->drop();
     }
 
 }
