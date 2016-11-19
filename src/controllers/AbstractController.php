@@ -24,8 +24,7 @@ abstract class AbstractController
     public function __construct(ContainerInterface $ci)
     {
         $this->ci = $ci;
-
-
+        
         $this->init();
     }
 
@@ -59,29 +58,6 @@ abstract class AbstractController
     public function table($table)
     {
         return $this->get('db')->table($table);
-    }
-
-    /**
-     * gen string token using key
-     * 
-     * @param  string $key
-     * @return string token string using md5
-     */
-    protected function _genToken($key = '')
-    {
-        $setting = (object) $this->get('settings')['token'];
-        return md5($key . $setting->salt . time());
-    }
-    
-    /**
-     * Check token from d
-     * 
-     * @param type $appId
-     * @param type $token
-     */
-    protected function _isValidToken($appId, $token)
-    {
-        
     }
 
 }

@@ -1,3 +1,7 @@
 <?php
 // Application middleware
-// e.g: $app->add(new \Slim\Csrf\Guard);
+$app->add(new \Slim\Middleware\JwtAuthentication([
+    "path"        => "/",
+    "passthrough" => "/token",
+    "secret"      => $container['settings']['token']['secret']
+]));

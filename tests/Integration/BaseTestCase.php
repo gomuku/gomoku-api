@@ -21,6 +21,12 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
      * @var [type]
      */
     protected $app;
+    
+    /**
+     *
+     * @var type 
+     */
+    protected $ci;
 
     /**
      * [$capsule description]
@@ -41,8 +47,7 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // Use the application settings
-        $settings                   = require CONFIG . '/settings.php';
-        $settings['settings']['db'] = $settings['settings']['db_test'];
+        $settings                   = require CONFIG . '/settings_test.php';
 
         $this->capsule = new \Illuminate\Database\Capsule\Manager;
         $this->capsule->addConnection($settings['settings']['db']);
@@ -51,6 +56,7 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
 
         // Instantiate the application
         $this->app = $app       = new App($settings);
+        $this->ci = $app->getContainer();
 
         // Set up dependencies
         $withMiddleware = $this->withMiddleware;
@@ -69,8 +75,8 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
     {
         // Create a mock environment for testing with
         $environment = Environment::mock([
-            'REQUEST_METHOD' => $requestMethod,
-            'REQUEST_URI'    => $requestUri
+                    'REQUEST_METHOD' => $requestMethod,
+                    'REQUEST_URI'    => $requestUri
         ]);
 
         // Set up a request object based on the environment
