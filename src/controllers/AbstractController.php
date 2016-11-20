@@ -24,7 +24,7 @@ abstract class AbstractController
     public function __construct(ContainerInterface $ci)
     {
         $this->ci = $ci;
-        
+
         $this->init();
     }
 
@@ -50,14 +50,20 @@ abstract class AbstractController
     }
 
     /**
-     * Get table by name
      * 
-     * @param string $table table need to get
-     * @return \Illuminate\Database\Query\Builder
+     * @param type $name
+     * @param \Api\Controller\callable $callback
+     * @return type
      */
-    public function table($table)
+    public function model($name, callable $callback = null)
     {
-        return $this->get('db')->table($table);
+        // get Model class instance
+        $className = "Api\\Model\\{$name}Model";
+        $model     = call_user_func($className . '::getInstance');
+        if ($callback) {
+            return $callback($model);
+        }
+        return $model;
     }
 
 }

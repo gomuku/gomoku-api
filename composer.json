@@ -23,7 +23,8 @@
     "autoload": {
         "psr-4": {
             "Api\\Controller\\": "src/controllers/",
-            "Api\\Model\\": "src/models/"
+            "Api\\Model\\": "src/models/",
+            "Api\\Lib\\": "src/libs/"
         }
     },
     "autoload-dev": {

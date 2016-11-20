@@ -22,6 +22,11 @@ $container['db'] = function ($c) {
     return $capsule;
 };
 
+// JwtAuthentication
+$container["jwt"] = function ($c) {
+    return new stdClass();
+};
+
 // Routes
 if (!isset($withMiddleware) || $withMiddleware) {
     require CONFIG . '/middleware.php';

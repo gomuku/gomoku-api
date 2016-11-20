@@ -5,7 +5,7 @@ namespace Tests\Db;
 use Api\Lib\SingletonTrait;
 use Illuminate\Database\Schema\Blueprint as Table;
 
-class User extends AbstractTable
+class Capability extends AbstractTable
 {
 
     use SingletonTrait;
@@ -13,7 +13,7 @@ class User extends AbstractTable
     /**
      * table = users
      */
-    protected $name = 'users';
+    protected $name = 'capabilities';
 
     /**
      * [create description]
@@ -24,11 +24,8 @@ class User extends AbstractTable
         $this->drop();
         $this->schema()->create($this->name, function(Table $table) {
             $table->increments('id');
-            $table->string('username')->unique();
-            $table->string('password');
-            $table->string('email');
-            $table->string('fullname')->nullable();
-            $table->integer('role_id')->nullable();
+            $table->char('capability_name')->unique();
+            $table->string('description')->nullable();
         });
         return $this;
     }

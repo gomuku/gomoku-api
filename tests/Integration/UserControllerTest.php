@@ -3,32 +3,19 @@
 namespace Tests\Integration;
 
 use \Firebase\JWT\JWT;
-use Tests\Db\User as DbUser;
 
 class UserControllerTest extends BaseTestCase
 {
-
-    /**
-     *
-     * @var type 
-     */
-    public $dbUser;
-
-    /**
-     *
-     * @var type 
-     */
-    public $dbToken;
-
     /**
      * setUp
      */
     public function setUp()
     {
         parent::setUp();
-
-        $this->dbUser = new DbUser();
-        $this->dbUser->create();
+        $this->table('User')->create();
+        $this->table('Role')->create();
+        $this->table('Capability')->create();
+        $this->table('RoleAndCapability')->create();
     }
 
     /**
@@ -36,7 +23,31 @@ class UserControllerTest extends BaseTestCase
      */
     public function tearDown()
     {
-        $this->dbUser->drop();
+        $this->table('User')->drop();
+        $this->table('Role')->drop();
+        $this->table('Capability')->drop();
+        $this->table('RoleAndCapability')->drop();
+    }
+
+    /**
+     * Insert admin user data
+     */
+    protected function _insertAdminUser($users)
+    {
+        $this->table('Capability')->insert([
+            [ 'id' => 1, 'capability_name' => 'read'],
+            [ 'id' => 2, 'capability_name' => 'write'],
+            [ 'id' => 3, 'capability_name' => 'delete']
+        ]);
+        $this->table('RoleAndCapability')->insert([
+            ['role_id' => 1, 'capability_id' => 1, 'allowed' => true],
+            ['role_id' => 1, 'capability_id' => 2, 'allowed' => true],
+            ['role_id' => 1, 'capability_id' => 3, 'allowed' => true]
+        ]);
+        $this->table('Role')->insert([
+            ['id' => 1, 'role_name' => 'admin']
+        ]);
+        $this->table('User')->insert($users);
     }
 
     /**
@@ -46,23 +57,28 @@ class UserControllerTest extends BaseTestCase
     public function testUserGenTokenOnSuccess()
     {
         // GIVEN
-        $this->dbUser->insert([
+        $this->_insertAdminUser([
             [
                 'username' => 'vkiet',
                 'password' => md5('123456'),
                 'email'    => 'vkiet@example.com',
-                'fullname' => 'Kiet'
+                'fullname' => 'Kiet',
+                'role_id'  => 1
             ]
         ]);
 
         // WHEN
-        $dataTest = [ 'username' => 'vkiet', 'password' => '123456'];
+        $dataTest = [
+            'username' => 'vkiet',
+            'password' => '123456',
+            'scopes'   => ['read', 'write', 'delete']
+        ];
         $response = $this->request('POST', '/token', $dataTest);
-        $secret   = $this->ci->get('settings')['token']['secret'];
+        $config   = (object) $this->ci->get('settings')['token'];
         $expected = json_encode([
             'code'   => 200,
             'status' => 'OK',
-            'token'  => JWT::encode($dataTest, $secret)
+            'token'  => JWT::encode($dataTest, $config->secret, $config->algorithm)
         ]);
 
         // THEN
@@ -77,7 +93,7 @@ class UserControllerTest extends BaseTestCase
     public function testUserGenTokenOnUnauthorized()
     {
         // GIVEN
-        $this->dbUser->insert([
+        $this->table('User')->insert([
             [
                 'username' => 'vkiet',
                 'password' => md5('123456'),
@@ -89,10 +105,10 @@ class UserControllerTest extends BaseTestCase
         // WHEN
         $dataTest = [
             'username' => 'vkiet OR 1=1',
-            'password' => ''
+            'password' => '',
+            'scopes'   => ['read', 'write', 'delete']
         ];
         $response = $this->request('POST', '/token', $dataTest);
-        $secret   = $this->ci->get('settings')['token']['secret'];
         $expected = json_encode([
             'code'    => 401,
             'status'  => 'NG',

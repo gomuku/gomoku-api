@@ -2,37 +2,15 @@
 
 namespace Tests\Db;
 
-use Illuminate\Database\Capsule\Manager as Capsule;
+use Api\Lib\CapsuleManagerTrait;
 
 abstract class AbstractTable
 {
 
     /**
-     *
-     * @var type 
+     * Use CapsuleManager
      */
-    protected $schema;
-
-    /**
-     *
-     * @var type 
-     */
-    protected $connection;
-
-    /**
-     * table = users
-     */
-    protected $table;
-
-    /**
-     * constructor
-     */
-    public function __construct($connection = null)
-    {
-        $this->schema     = Capsule::schema();
-        $this->connection = Capsule::connection($connection);
-    }
-
+    use CapsuleManagerTrait;
     /**
      * [insert description]
      * 
@@ -42,17 +20,8 @@ abstract class AbstractTable
     public function insert($data = [])
     {
         // Perform potentially risky queries in a transaction for easy rollback.
-        try {
-            $table = $this->table;
-            $this->connection->transaction(function ($con) use ($table, $data) {
-                $tb = $con->table($table);
-                foreach ($data as $row) {
-                    $tb->insert($row);
-                }
-            });
-        } catch (\Exception $e) {
-            echo "Uh oh! Inserting didn't work, but I was able to rollback. {$e->getMessage()}";
-        }
+        $this->table()->insert($data);
+        return $this;
     }
 
     /**
@@ -61,7 +30,11 @@ abstract class AbstractTable
      */
     public function drop()
     {
-        return $this->schema->drop($this->table);
+        $schema = $this->schema();
+        if ($schema->hasTable($this->name)) {
+            $schema->drop($this->name);
+        }
+        return $this;
     }
 
 }

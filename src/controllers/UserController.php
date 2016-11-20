@@ -5,7 +5,7 @@ namespace Api\Controller;
 use Firebase\JWT\JWT;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use Api\Model\UserManager;
+use Api\Model\UserModel;
 
 /**
  * User controller
@@ -36,10 +36,12 @@ class UserController extends AbstractController
     {
         // get request data
         $body = (object) $req->getParsedBody();
-        $user = UserManager::getInstance()->findUser(
-                $body->username, $body->password
+        $user = $this->model('User', 
+            function(UserModel $model) use($body) {
+                return $model->findUser($body->username, $body->password);
+            }
         );
-        
+
         if (!$user) {
             $dataResponse = [
                 'code'    => 401,
@@ -51,9 +53,16 @@ class UserController extends AbstractController
 
 
         // create token data
+        $scopes = $this->model('User', 
+            function(UserModel $model) use($body, $user) {
+                return $model->getScopes($user->id, $body->scopes);
+            }
+        );
+        
         $payload = [
             'username' => $body->username,
-            'password' => $body->password
+            'password' => $body->password,
+            'scopes'   => $scopes
         ];
 
         // create response data
@@ -61,7 +70,7 @@ class UserController extends AbstractController
         $dataResponse = [
             'code'   => 200,
             'status' => 'OK',
-            'token'  => JWT::encode($payload, $config->secret)
+            'token'  => JWT::encode($payload, $config->secret, $config->algorithm)
         ];
         return $res->withJson($dataResponse);
     }
