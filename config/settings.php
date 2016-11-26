@@ -10,6 +10,7 @@ return [
             'level' => \Monolog\Logger::DEBUG,
         ],
         'token'   => [
+            'expired'   => '+24 hours',
             'algorithm' => 'HS256',
             'secret'    => '52c664248b560d2874cbefd8a83cf55da515765e6450ea3b2b6a4d878d5cd6a8'
         ],

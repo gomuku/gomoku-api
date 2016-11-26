@@ -1,5 +1,4 @@
 <?php
-
 namespace Api\Lib;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -12,7 +11,7 @@ trait CapsuleManagerTrait
 
     /**
      *
-     * @var type 
+     * @var type
      */
     protected $name;
 
@@ -34,7 +33,7 @@ trait CapsuleManagerTrait
 
     /**
      * Get table
-     * 
+     *
      * @return \Illuminate\Database\Query\Builder
      */
     public function table()

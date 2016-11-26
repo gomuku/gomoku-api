@@ -12,7 +12,7 @@ abstract class AbstractModel
     use CapsuleManagerTrait;
     
     /**
-     * 
+     * @codeCoverageIgnore
      */
     public function __construct()
     {

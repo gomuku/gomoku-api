@@ -12,10 +12,23 @@ class UserControllerTest extends BaseTestCase
     public function setUp()
     {
         parent::setUp();
+
+        // create table
         $this->table('User')->create();
         $this->table('Role')->create();
         $this->table('Capability')->create();
         $this->table('RoleAndCapability')->create();
+
+        // insert default data
+        $this->_insertAdminUser([
+            [
+                'username' => 'vkiet',
+                'password' => md5('123456'),
+                'email'    => 'vkiet@example.com',
+                'fullname' => 'Kiet',
+                'role_id'  => 1
+            ]
+        ]);
     }
 
     /**
@@ -51,73 +64,103 @@ class UserControllerTest extends BaseTestCase
     }
 
     /**
-     * Test that the index route returns a rendered response containing the text 
-     * 'SlimFramework' but not a greeting
+     * testUserLoginOnSuccess
      */
-    public function testUserGenTokenOnSuccess()
+    public function testUserLoginSuccess()
     {
         // GIVEN
-        $this->_insertAdminUser([
-            [
-                'username' => 'vkiet',
-                'password' => md5('123456'),
-                'email'    => 'vkiet@example.com',
-                'fullname' => 'Kiet',
-                'role_id'  => 1
-            ]
-        ]);
-
-        // WHEN
         $dataTest = [
             'username' => 'vkiet',
             'password' => '123456',
             'scopes'   => ['read', 'write', 'delete']
         ];
-        $response = $this->request('POST', '/token', $dataTest);
         $config   = (object) $this->ci->get('settings')['token'];
-        $expected = json_encode([
-            'code'   => 200,
-            'status' => 'OK',
-            'token'  => JWT::encode($dataTest, $config->secret, $config->algorithm)
-        ]);
+
+        // WHEN
+        $response = $this->request('POST', '/login', $dataTest);
 
         // THEN
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertContains($expected, (string) $response->getBody());
+        $resData = json_decode($response->getBody());
+        $this->assertEquals(200, $resData->code);
+        $this->assertEquals('OK', $resData->status);
+        $this->assertRegExp('/^[0-9a-z._-]+$/i', $resData->token);
+        return $resData;
     }
 
     /**
-     * Test that the index route returns a rendered response containing the text 
-     * 'SlimFramework' but not a greeting
+     * testUserLoginFaildWithSqlInjection
      */
-    public function testUserGenTokenOnUnauthorized()
+    public function testUserLoginFailedOnInputSqlInjection()
     {
         // GIVEN
-        $this->table('User')->insert([
-            [
-                'username' => 'vkiet',
-                'password' => md5('123456'),
-                'email'    => 'vkiet@example.com',
-                'fullname' => 'Kiet'
-            ]
-        ]);
-
-        // WHEN
         $dataTest = [
             'username' => 'vkiet OR 1=1',
             'password' => '',
             'scopes'   => ['read', 'write', 'delete']
         ];
-        $response = $this->request('POST', '/token', $dataTest);
-        $expected = json_encode([
-            'code'    => 401,
-            'status'  => 'NG',
-            'message' => 'Wrong username or password.'
-        ]);
+
+        // WHEN
+        $response = $this->request('POST', '/login', $dataTest);
 
         // THEN
         $this->assertEquals(401, $response->getStatusCode());
-        $this->assertContains($expected, (string) $response->getBody());
+        $resData = json_decode($response->getBody());
+        $this->assertEquals(401, $resData->code);
+        $this->assertEquals('NG', $resData->status);
+        $this->assertEquals('Wrong username or password.', $resData->message);
+    }
+
+    /**
+     * testUserGenerateTokenSuccess
+     * @depends testUserLoginSuccess
+     */
+    public function testUserGenerateTokenSuccess($resOnLoginSuccess)
+    {
+        // GIVEN        
+        $token = $resOnLoginSuccess->token;
+        $headers = [ "HTTP_AUTHORIZATION" => "Bearer " . $token ];
+        $dataTest = ['scopes' => ['read', 'write', 'delete']];
+
+        // WHEN
+        $response = $this->request('POST', '/token', $dataTest, $headers);
+
+        // THEN
+        $this->assertEquals(200, $response->getStatusCode());
+        $resData = json_decode($response->getBody());
+        $this->assertEquals(200, $resData->code);
+        $this->assertEquals('OK', $resData->status);
+        $this->assertRegExp('/^[0-9a-z._-]+$/i', $resData->token);
+    }
+
+    /**
+     * testUserGenerateTokenFailedOnInValidToken
+     */
+    public function testUserGenerateTokenFailedOnExpiredToken()
+    {
+        // GIVEN
+        $time = time();
+        $config   = (object) $this->ci->get('settings')['token'];
+        $payload = [
+            'iss'  => 'gomoku.api',
+            'iat ' => $time,
+            'nbf'  => $time,
+            'exp'  => strtotime('-2 hours', $time),
+            'data' => []
+        ];
+        $token = JWT::encode($payload, $config->secret, $config->algorithm);
+        $headers = [ "HTTP_AUTHORIZATION" => "Bearer " . $token ];
+        $dataTest = ['scopes' => ['read', 'write', 'delete']];
+
+        // WHEN
+        $response = $this->request('POST', '/token', $dataTest, $headers);
+
+        // THEN
+        $this->assertEquals(401, $response->getStatusCode());
+        $resData = json_decode($response->getBody());
+        $this->assertEquals(401, $resData->code);
+        $this->assertEquals('NG', $resData->status);
+        $this->assertEquals('Expired token', $resData->message);
     }
 
 }

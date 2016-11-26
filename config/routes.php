@@ -5,6 +5,11 @@
 $app->get('/', '\Api\Controller\UserController:index');
 
 /**
- * Api get token for login action
+ * Api login action
  */
-$app->post('/token', '\Api\Controller\UserController:genToken');
+$app->post('/login', '\Api\Controller\UserController:login');
+
+/**
+ * Api gen token
+ */
+$app->post('/token', '\Api\Controller\UserController:token');
