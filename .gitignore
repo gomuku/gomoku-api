@@ -1,0 +1,6 @@
+/vendor/
+/logs/*
+/tmp
+!/logs/README.md
+/nbproject
+report/

@@ -1,0 +1,41 @@
+{
+    "name": "slim/slim-skeleton",
+    "description": "Api check gen api and check token",
+    "keywords": ["api", "rest", "token", "psr7"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vo Anh Kiett",
+            "email": "zvoanhkietz@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "7.0.*",
+        "slim/slim": "^3.1",
+        "monolog/monolog": "^1.17",
+        "illuminate/database": "*",
+        "tuupola/slim-jwt-auth": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "@stable",
+        "robmorgan/phinx": "@stable"
+    },
+    "autoload": {
+        "psr-4": {
+            "Api\\Controller\\": "src/controllers/",
+            "Api\\Middleware\\": "src/middlewares/",
+            "Api\\Model\\": "src/models/",
+            "Api\\Lib\\": "src/libs/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+	"scripts": {
+        "start": "php -S 0.0.0.0:8080 -t public public/index.php",
+        "test": "phpunit"
+	}
+
+}
