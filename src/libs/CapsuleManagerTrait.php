@@ -1,30 +1,21 @@
 <?php
+
 namespace Api\Lib;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * Singleton patter in php
+ * Singleton patter in php.
  * */
 trait CapsuleManagerTrait
 {
-
     /**
-     *
      * @var type
      */
     protected $name;
 
     /**
-     * Get connection
-     */
-    public function connection($connection = null)
-    {
-        return Capsule::connection($connection);
-    }
-
-    /**
-     * Get schema
+     * Get schema.
      */
     public function schema()
     {
@@ -32,7 +23,7 @@ trait CapsuleManagerTrait
     }
 
     /**
-     * Get table
+     * Get table.
      *
      * @return \Illuminate\Database\Query\Builder
      */
@@ -40,5 +31,4 @@ trait CapsuleManagerTrait
     {
         return Capsule::table($this->name);
     }
-
 }

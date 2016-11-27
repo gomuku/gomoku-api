@@ -20,7 +20,20 @@ class UserControllerTest extends BaseTestCase
         $this->table('RoleAndCapability')->create();
 
         // insert default data
-        $this->_insertAdminUser([
+        $this->table('Capability')->insert([
+            [ 'id' => 1, 'capability_name' => 'read'],
+            [ 'id' => 2, 'capability_name' => 'write'],
+            [ 'id' => 3, 'capability_name' => 'delete']
+        ]);
+        $this->table('Role')->insert([
+            ['id' => 1, 'role_name' => 'admin']
+        ]);
+        $this->table('RoleAndCapability')->insert([
+            ['role_id' => 1, 'capability_id' => 1, 'allowed' => true],
+            ['role_id' => 1, 'capability_id' => 2, 'allowed' => true],
+            ['role_id' => 1, 'capability_id' => 3, 'allowed' => true]
+        ]);
+        $this->table('User')->insert([
             [
                 'username' => 'vkiet',
                 'password' => md5('123456'),
@@ -40,27 +53,6 @@ class UserControllerTest extends BaseTestCase
         $this->table('Role')->drop();
         $this->table('Capability')->drop();
         $this->table('RoleAndCapability')->drop();
-    }
-
-    /**
-     * Insert admin user data
-     */
-    protected function _insertAdminUser($users)
-    {
-        $this->table('Capability')->insert([
-            [ 'id' => 1, 'capability_name' => 'read'],
-            [ 'id' => 2, 'capability_name' => 'write'],
-            [ 'id' => 3, 'capability_name' => 'delete']
-        ]);
-        $this->table('RoleAndCapability')->insert([
-            ['role_id' => 1, 'capability_id' => 1, 'allowed' => true],
-            ['role_id' => 1, 'capability_id' => 2, 'allowed' => true],
-            ['role_id' => 1, 'capability_id' => 3, 'allowed' => true]
-        ]);
-        $this->table('Role')->insert([
-            ['id' => 1, 'role_name' => 'admin']
-        ]);
-        $this->table('User')->insert($users);
     }
 
     /**
