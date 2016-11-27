@@ -6,11 +6,11 @@ use Api\Lib\CapsuleManagerTrait;
 
 abstract class AbstractModel
 {
-    /**
+    /*
      * Use CapsuleManager
      */
     use CapsuleManagerTrait;
-    
+
     /**
      * @codeCoverageIgnore
      */
@@ -21,31 +21,26 @@ abstract class AbstractModel
     }
 
     /**
-     * inherit
+     * inherit.
      */
     public function init()
     {
-        
     }
 
     /**
-     * 
-     * @param type $modelName
+     * @param type                $modelName
      * @param \Api\Model\callable $callback
+     *
      * @return type
      */
     public function model($modelName, callable $callback = null)
     {
         // get ModelManager class instance
-        $className = "Api\\Model\\" . $modelName . "Model";
-        if (class_exists($className)) {
-            if ($callback) {
-                $model = call_user_func($className . '::getInstance');
-                return $callback($model);
-            }
-            return $model;
+        $className = 'Api\\Model\\'.$modelName.'Model';
+        $model = call_user_func($className.'::getInstance');
+        if ($callback) {
+            return $callback($model);
         }
-        return null;
+        return $model;
     }
-
 }

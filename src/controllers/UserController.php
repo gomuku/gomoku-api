@@ -91,15 +91,7 @@ class UserController extends AbstractController
     public function token(Request $req, Response $res)
     {
         // check login token
-        $login = $this->getLoginInfoFromJwt();
-        if(!$login){
-            $dataResponse = [
-                'code'    => 401,
-                'status'  => 'NG',
-                'message' => 'Token\'s invalid.',
-            ];
-            return $res->withStatus(401)->withJson($dataResponse);
-        }
+        $login = $this->get('loginInfo');
 
         // get request data
         $body = (object) $req->getParsedBody();
